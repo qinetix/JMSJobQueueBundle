@@ -12,12 +12,13 @@
         }
     ],
     "require": {
-        "php": "^7.1",
-        "symfony/framework-bundle": "^3.4 || ^4.0",
-        "symfony/debug": "^3.4 || ^4.0",
-        "doctrine/common": "^2.3",
-        "symfony/process": "^3.4 || ^4.0"
+        "php": "^8.0",
+        "symfony/framework-bundle": "^5.0",
+        "symfony/error-handler": "^5.0",
+        "doctrine/common": "^3.0",
+        "symfony/process": "^5.0"
     },
+    "minimum-stability": "dev",
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "*",
         "sensio/framework-extra-bundle": "*",
@@ -31,7 +32,7 @@
         "symfony/twig-bundle": "*",
         "symfony/form": "*",
         "symfony/validator": "*",
-        "phpunit/phpunit": "^6.0",
+        "phpunit/phpunit": "^11.0",
         "symfony/intl": "*"
     },
     "suggest": {
