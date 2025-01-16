@@ -508,6 +508,40 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable, Rea
         return new ArrayCollection($filtered);
     }
 
+    /**
+     * Returns the first element of this collection that satisfies the predicate.
+     * Returns NULL if no element matches.
+     *
+     * @param Closure $p The predicate.
+     * @return mixed|null The first matching element or NULL if none found
+     */
+    public function findFirst(Closure $p)
+    {
+        $this->initialize();
+        
+        foreach ($this->entities as $key => $element) {
+            if ($p($key, $element)) {
+                return $element;
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Reduces the collection to a single value using the callback function.
+     *
+     * @param Closure $func The callback function
+     * @param mixed $initial The initial value
+     * @return mixed The reduced value
+     */
+    public function reduce(Closure $func, $initial = null)
+    {
+        $this->initialize();
+        
+        return array_reduce($this->entities, $func, $initial);
+    }
+
     private function initialize()
     {
         if (null !== $this->entities) {
