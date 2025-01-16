@@ -303,7 +303,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable, Rea
      *
      * @return integer The number of elements in the collection.
      */
-    public function count()
+    public function count(): int
     {
         $this->initialize();
 
@@ -354,7 +354,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable, Rea
      *
      * @return ArrayIterator
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         $this->initialize();
 
