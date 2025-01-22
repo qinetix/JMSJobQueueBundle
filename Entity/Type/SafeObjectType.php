@@ -2,7 +2,7 @@
 
 namespace JMS\JobQueueBundle\Entity\Type;
 
-use Doctrine\DBAL\Types\ObjectType;
+use Doctrine\DBAL\Types\JsonType;
 
 class SafeObjectType extends ObjectType
 {
