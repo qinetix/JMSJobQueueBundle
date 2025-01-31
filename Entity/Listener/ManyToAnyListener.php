@@ -7,6 +7,7 @@ use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Common\Util\ClassUtils;
 use JMS\JobQueueBundle\Entity\Job;
+use Doctrine\ORM\Event\PostLoadEventArgs;
 
 /**
  * Provides many-to-any association support for jobs.
@@ -30,7 +31,10 @@ class ManyToAnyListener
         $this->ref->setAccessible(true);
     }
 
-    public function postLoad(LifecycleEventArgs $event)
+    /**
+     * @param PostLoadEventArgs $event
+     */
+    public function postLoad(PostLoadEventArgs $event)
     {
         $entity = $event->getEntity();
         if (!$entity instanceof Job) {
