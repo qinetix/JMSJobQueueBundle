@@ -36,7 +36,7 @@ class ManyToAnyListener
      */
     public function postLoad(PostLoadEventArgs $event)
     {
-        $entity = $event->getEntity();
+        $entity = $event->getObject();
         if (!$entity instanceof Job) {
             return;
         }
@@ -46,7 +46,7 @@ class ManyToAnyListener
 
     public function preRemove(LifecycleEventArgs $event)
     {
-        $entity = $event->getEntity();
+        $entity = $event->getObject();
         if (!$entity instanceof Job) {
             return;
         }
@@ -59,7 +59,7 @@ class ManyToAnyListener
 
     public function postPersist(LifecycleEventArgs $event)
     {
-        $entity = $event->getEntity();
+        $entity = $event->getObject();
         if (!$entity instanceof Job) {
             return;
         }
