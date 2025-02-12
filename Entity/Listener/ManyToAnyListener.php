@@ -4,10 +4,13 @@ namespace JMS\JobQueueBundle\Entity\Listener;
 
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
-use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Util\ClassUtils;
 use JMS\JobQueueBundle\Entity\Job;
 use Doctrine\ORM\Event\PostLoadEventArgs;
+use Doctrine\ORM\Event\PostPersistEventArgs;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs as CommonPersistenceLifecycleEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
 
 /**
  * Provides many-to-any association support for jobs.
@@ -24,7 +27,10 @@ class ManyToAnyListener
     private $registry;
     private $ref;
 
-    public function __construct(ManagerRegistry $registry)
+    /**
+     * @param \Doctrine\Common\Persistence\ManagerRegistry $registry
+     */
+    public function __construct($registry)
     {
         $this->registry = $registry;
         $this->ref = new \ReflectionProperty('JMS\JobQueueBundle\Entity\Job', 'relatedEntities');
@@ -44,27 +50,34 @@ class ManyToAnyListener
         $this->ref->setValue($entity, new PersistentRelatedEntitiesCollection($this->registry, $entity));
     }
 
-    public function preRemove(LifecycleEventArgs $event)
+    /**
+     * @param mixed $event
+     */
+    public function preRemove(PreRemoveEventArgs $event)
     {
         $entity = $event->getObject();
         if (!$entity instanceof Job) {
             return;
         }
 
-        $con = $event->getEntityManager()->getConnection();
+        $em = $event->getEntityManager();
+        $con = $em->getConnection();
         $con->executeStatement("DELETE FROM jms_job_related_entities WHERE job_id = :id", [
             'id' => $entity->getId(),
         ]);
     }
 
-    public function postPersist(LifecycleEventArgs $event)
+    /**
+     * @param mixed $event
+     */
+    public function postPersist($event)
     {
         $entity = $event->getObject();
         if (!$entity instanceof Job) {
             return;
         }
-
-        $con = $event->getEntityManager()->getConnection();
+        $em = $event->getEntityManager();
+        $con = $em->getConnection();
         foreach ($this->ref->getValue($entity) as $relatedEntity) {
             $relClass = ClassUtils::getClass($relatedEntity);
             $relId = $this->registry->getManagerForClass($relClass)->getMetadataFactory()->getMetadataFor($relClass)->getIdentifierValues($relatedEntity);
