@@ -76,15 +76,17 @@ class ManyToAnyListener
         if (!$entity instanceof Job) {
             return;
         }
-        $em = $event->getEntityManager();
+
+        $em = $event->getObjectManager();
         $con = $em->getConnection();
+
         foreach ($this->ref->getValue($entity) as $relatedEntity) {
             $relClass = ClassUtils::getClass($relatedEntity);
             $relId = $this->registry->getManagerForClass($relClass)->getMetadataFactory()->getMetadataFor($relClass)->getIdentifierValues($relatedEntity);
             asort($relId);
 
             if (!$relId) {
-                throw new \RuntimeException('The identifier for the related entity "'.$relClass.'" was empty.');
+                throw new \RuntimeException('The identifier for the related entity "' . $relClass . '" was empty.');
             }
 
             $con->executeStatement("INSERT INTO jms_job_related_entities (job_id, related_class, related_id) VALUES (:jobId, :relClass, :relId)", [
