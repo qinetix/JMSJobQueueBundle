@@ -70,7 +70,7 @@ class CleanUpCommand extends Command
             $em->clear();
 
             /** @var Job $job */
-            $job = $em->createQuery("SELECT j FROM JMSJobQueueBundle:Job j
+            $job = $em->createQuery("SELECT j FROM " . Job::class . " j
                                       WHERE j.state = :running AND j.workerName IS NOT NULL AND j.checkedAt < :maxAge
                                                 AND j.id NOT IN (:excludedIds)")
                 ->setParameter('running', Job::STATE_RUNNING)
@@ -99,7 +99,7 @@ class CleanUpCommand extends Command
 
             $result = $con->executeQuery($incomingDepsSql, array('id' => $job->getId()));
             if ($result->fetchColumn() !== false) {
-                $em->transactional(function() use ($em, $job) {
+                $em->transactional(function () use ($em, $job) {
                     $this->resolveDependencies($em, $job);
                     $em->remove($job);
                 });
@@ -121,7 +121,7 @@ class CleanUpCommand extends Command
     {
         // If this job has failed, or has otherwise not succeeded, we need to set the
         // incoming dependencies to failed if that has not been done already.
-        if ( ! $job->isFinished()) {
+        if (! $job->isFinished()) {
             foreach ($this->jobManager->findIncomingDependencies($job) as $incomingDep) {
                 if ($incomingDep->isInFinalState()) {
                     continue;
@@ -141,34 +141,34 @@ class CleanUpCommand extends Command
 
     private function findExpiredJobs(EntityManager $em, InputInterface $input)
     {
-        $succeededJobs = function(array $excludedIds) use ($em, $input) {
-            return $em->createQuery("SELECT j FROM JMSJobQueueBundle:Job j WHERE j.closedAt < :maxRetentionTime AND j.originalJob IS NULL AND j.state = :succeeded AND j.id NOT IN (:excludedIds)")
-                ->setParameter('maxRetentionTime', new \DateTime('-'.$input->getOption('max-retention-succeeded')))
+        $succeededJobs = function (array $excludedIds) use ($em, $input) {
+            return $em->createQuery("SELECT j FROM " . Job::class . " j WHERE j.closedAt < :maxRetentionTime AND j.originalJob IS NULL AND j.state = :succeeded AND j.id NOT IN (:excludedIds)")
+                ->setParameter('maxRetentionTime', new \DateTime('-' . $input->getOption('max-retention-succeeded')))
                 ->setParameter('excludedIds', $excludedIds)
                 ->setParameter('succeeded', Job::STATE_FINISHED)
                 ->setMaxResults(100)
                 ->getResult();
         };
-        yield from $this->whileResults( $succeededJobs );
+        yield from $this->whileResults($succeededJobs);
 
-        $finishedJobs = function(array $excludedIds) use ($em, $input) {
-            return $em->createQuery("SELECT j FROM JMSJobQueueBundle:Job j WHERE j.closedAt < :maxRetentionTime AND j.originalJob IS NULL AND j.id NOT IN (:excludedIds)")
-                ->setParameter('maxRetentionTime', new \DateTime('-'.$input->getOption('max-retention')))
+        $finishedJobs = function (array $excludedIds) use ($em, $input) {
+            return $em->createQuery("SELECT j FROM " . Job::class . " j WHERE j.closedAt < :maxRetentionTime AND j.originalJob IS NULL AND j.id NOT IN (:excludedIds)")
+                ->setParameter('maxRetentionTime', new \DateTime('-' . $input->getOption('max-retention')))
                 ->setParameter('excludedIds', $excludedIds)
                 ->setMaxResults(100)
                 ->getResult();
         };
-        yield from $this->whileResults( $finishedJobs );
+        yield from $this->whileResults($finishedJobs);
 
-        $canceledJobs = function(array $excludedIds) use ($em, $input) {
-            return $em->createQuery("SELECT j FROM JMSJobQueueBundle:Job j WHERE j.state = :canceled AND j.createdAt < :maxRetentionTime AND j.originalJob IS NULL AND j.id NOT IN (:excludedIds)")
-                ->setParameter('maxRetentionTime', new \DateTime('-'.$input->getOption('max-retention')))
+        $canceledJobs = function (array $excludedIds) use ($em, $input) {
+            return $em->createQuery("SELECT j FROM " . Job::class . " j WHERE j.state = :canceled AND j.createdAt < :maxRetentionTime AND j.originalJob IS NULL AND j.id NOT IN (:excludedIds)")
+                ->setParameter('maxRetentionTime', new \DateTime('-' . $input->getOption('max-retention')))
                 ->setParameter('canceled', Job::STATE_CANCELED)
                 ->setParameter('excludedIds', $excludedIds)
                 ->setMaxResults(100)
                 ->getResult();
         };
-        yield from $this->whileResults( $canceledJobs );
+        yield from $this->whileResults($canceledJobs);
     }
 
     private function whileResults(callable $resultProducer)
@@ -182,6 +182,6 @@ class CleanUpCommand extends Command
                 $excludedIds[] = $job->getId();
                 yield $job;
             }
-        } while ( ! empty($jobs));
+        } while (! empty($jobs));
     }
 }

@@ -25,7 +25,7 @@ class CronTest extends BaseTestCase
     {
         $this->createClient(array('config' => 'persistent_db.yml'));
 
-        if (is_file($databaseFile = self::$kernel->getCacheDir().'/database.sqlite')) {
+        if (is_file($databaseFile = self::$kernel->getCacheDir() . '/database.sqlite')) {
             unlink($databaseFile);
         }
 
@@ -35,7 +35,7 @@ class CronTest extends BaseTestCase
         $this->app->setAutoExit(false);
         $this->app->setCatchExceptions(false);
 
-        $this->em = self::$kernel->getContainer()->get('doctrine')->getManagerForClass('JMSJobQueueBundle:Job');
+        $this->em = self::$kernel->getContainer()->get('doctrine')->getManagerForClass(Job::class);
     }
 
     private function doRun(array $args = array())
@@ -46,5 +46,4 @@ class CronTest extends BaseTestCase
 
         return $output->getOutput();
     }
-
 }
