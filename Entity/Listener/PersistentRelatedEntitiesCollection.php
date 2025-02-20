@@ -401,7 +401,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable, Rea
         $this->initialize();
 
         foreach ($this->entities as $key => $element) {
-            if ( ! $p($key, $element)) {
+            if (! $p($key, $element)) {
                 return false;
             }
         }
@@ -518,13 +518,13 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable, Rea
     public function findFirst(Closure $p)
     {
         $this->initialize();
-        
+
         foreach ($this->entities as $key => $element) {
             if ($p($key, $element)) {
                 return $element;
             }
         }
-        
+
         return null;
     }
 
@@ -538,7 +538,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable, Rea
     public function reduce(Closure $func, $initial = null)
     {
         $this->initialize();
-        
+
         return array_reduce($this->entities, $func, $initial);
     }
 
@@ -548,10 +548,10 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable, Rea
             return;
         }
 
-        $con = $this->registry->getManagerForClass('JMSJobQueueBundle:Job')->getConnection();
+        $con = $this->registry->getManagerForClass(Job::class)->getConnection();
         $entitiesPerClass = array();
         $count = 0;
-        foreach ($con->query("SELECT related_class, related_id FROM jms_job_related_entities WHERE job_id = ".$this->job->getId()) as $data) {
+        foreach ($con->query("SELECT related_class, related_id FROM jms_job_related_entities WHERE job_id = " . $this->job->getId()) as $data) {
             $count += 1;
             $entitiesPerClass[$data['related_class']][] = json_decode($data['related_id'], true);
         }
@@ -566,16 +566,16 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable, Rea
         foreach ($entitiesPerClass as $className => $ids) {
             $em = $this->registry->getManagerForClass($className);
             $qb = $em->createQueryBuilder()
-                        ->select('e')->from($className, 'e');
+                ->select('e')->from($className, 'e');
 
             $i = 0;
             foreach ($ids as $id) {
                 $expr = null;
                 foreach ($id as $k => $v) {
                     if (null === $expr) {
-                        $expr = $qb->expr()->eq('e.'.$k, '?'.(++$i));
+                        $expr = $qb->expr()->eq('e.' . $k, '?' . (++$i));
                     } else {
-                        $expr = $qb->expr()->andX($expr, $qb->expr()->eq('e.'.$k, '?'.(++$i)));
+                        $expr = $qb->expr()->andX($expr, $qb->expr()->eq('e.' . $k, '?' . (++$i)));
                     }
 
                     $qb->setParameter($i, $v);
