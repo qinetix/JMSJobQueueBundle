@@ -319,7 +319,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable, Rea
      * @param mixed $key
      * @param mixed $value
      */
-    public function set($key, $value)
+    public function set($key, $value): void
     {
         throw new \LogicException('set() is not supported.');
     }
@@ -446,7 +446,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable, Rea
     /**
      * Clears the collection.
      */
-    public function clear()
+    public function clear(): void
     {
         throw new \LogicException('clear() is not supported.');
     }
